@@ -16,6 +16,7 @@ public:
   uint32_t GetSerializedSize() const;
 
   static uint32_t DeserializeFrom(char *buf, TableMetadata *&table_meta, MemHeap *heap);
+  //Use the heap in TableInfo.
 
   static TableMetadata *Create(table_id_t table_id, std::string table_name,
                                page_id_t root_page_id, TableSchema *schema, MemHeap *heap);
@@ -28,7 +29,6 @@ public:
 
   inline Schema *GetSchema() const { return schema_; }
 
-
 private:
   TableMetadata() = delete;
 
@@ -38,7 +38,8 @@ private:
   static constexpr uint32_t TABLE_METADATA_MAGIC_NUM = 344528;
   table_id_t table_id_;
   std::string table_name_;
-  page_id_t root_page_id_;
+  page_id_t root_page_id_;//Record's root page id of this table.
+  //Meta page is managed by CatalogMeta.
   Schema *schema_;
 };
 

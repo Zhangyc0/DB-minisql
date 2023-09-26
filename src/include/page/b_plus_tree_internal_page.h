@@ -30,6 +30,8 @@ public:
 
   void SetKeyAt(int index, const KeyType &key);
 
+  int KeyIndex(const KeyType &key,const KeyComparator &comparator)const;
+
   int ValueIndex(const ValueType &value) const;
 
   ValueType ValueAt(int index) const;
@@ -49,20 +51,20 @@ public:
 
   void MoveHalfTo(BPlusTreeInternalPage *recipient, BufferPoolManager *buffer_pool_manager);
 
-  void MoveFirstToEndOf(BPlusTreeInternalPage *recipient, const KeyType &middle_key,
-                        BufferPoolManager *buffer_pool_manager);
+  void MoveFirstToEndOf(BPlusTreeInternalPage *recipient, BufferPoolManager *buffer_pool_manager);
 
-  void MoveLastToFrontOf(BPlusTreeInternalPage *recipient, const KeyType &middle_key,
-                         BufferPoolManager *buffer_pool_manager);
+  void MoveLastToFrontOf(BPlusTreeInternalPage *recipient, BufferPoolManager *buffer_pool_manager,int index);
 
 private:
   void CopyNFrom(MappingType *items, int size, BufferPoolManager *buffer_pool_manager);
 
   void CopyLastFrom(const MappingType &pair, BufferPoolManager *buffer_pool_manager);
 
-  void CopyFirstFrom(const MappingType &pair, BufferPoolManager *buffer_pool_manager);
+  void CopyFirstFrom(const MappingType &pair, BufferPoolManager *buffer_pool_manager,int index);
 
-  MappingType array_[0];
+   void CopyAllFrom(MappingType *items, int size, BufferPoolManager *buffer_pool_manager);
+
+  MappingType array_[0];//Key->value
 };
 
 #endif  // MINISQL_B_PLUS_TREE_INTERNAL_PAGE_H

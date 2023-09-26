@@ -82,7 +82,11 @@ CmpBool Type::CompareGreaterThanEquals(const Field &left, const Field &right) co
 
 uint32_t TypeInt::SerializeTo(const Field &field, char *buf) const {
   if (!field.IsNull()) {
+    //std::cout << "here" << std::endl;
+    // std::cout << field.value_.integer_<<std::endl;
+    // std::cout << buf[0] << std::endl;
     MACH_WRITE_TO(int32_t, buf, field.value_.integer_);
+    //std::cout << "here?" << std::endl;
     return GetTypeSize(type_id_);
   }
   return 0;

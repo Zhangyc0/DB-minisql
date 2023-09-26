@@ -23,11 +23,7 @@ class DiskManager {
 public:
   explicit DiskManager(const std::string &db_file);
 
-  ~DiskManager() {
-    if (!closed) {
-      Close();
-    }
-  }
+  ~DiskManager() ;
 
   /**
    * Read page from specific page_id
@@ -71,7 +67,6 @@ public:
   }
 
   static constexpr size_t BITMAP_SIZE = BitmapPage<PAGE_SIZE>::GetMaxSupportedSize();
-
 private:
   /**
    * Helper function to get disk file size

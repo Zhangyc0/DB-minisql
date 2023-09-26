@@ -56,8 +56,8 @@ private:
 
 private:
   static constexpr uint32_t CATALOG_METADATA_MAGIC_NUM = 89849;
-  std::map<table_id_t, page_id_t> table_meta_pages_;
-  std::map<index_id_t, page_id_t> index_meta_pages_;
+  std::map<table_id_t, page_id_t> table_meta_pages_; //table_meta's page_id
+  std::map<index_id_t, page_id_t> index_meta_pages_;// index_meta's page_id.
 };
 
 /**
@@ -105,14 +105,14 @@ private:
   [[maybe_unused]] CatalogMeta *catalog_meta_;
   [[maybe_unused]] std::atomic<table_id_t> next_table_id_;
   [[maybe_unused]] std::atomic<index_id_t> next_index_id_;
-  // map for tables
+  // map for tables:(table_name)->(table_id_t)->TableInfo
   std::unordered_map<std::string, table_id_t> table_names_;
   std::unordered_map<table_id_t, TableInfo *> tables_;
-  // map for indexes: table_name->index_name->indexes
+  // map for indexes: table_name->(index_name->indexes)
+  //index_id->IndexInfo
   [[maybe_unused]] std::unordered_map<std::string, std::unordered_map<std::string, index_id_t>> index_names_;
   [[maybe_unused]] std::unordered_map<index_id_t, IndexInfo *> indexes_;
   // memory heap
   MemHeap *heap_;
 };
-
 #endif //MINISQL_CATALOG_H

@@ -9,6 +9,8 @@ TEST(DiskManagerTest, BitMapPageTest) {
   memset(buf, 0, size);
   BitmapPage<size> *bitmap = reinterpret_cast<BitmapPage<size> *>(buf);
   auto num_pages = bitmap->GetMaxSupportedSize();
+  //得到能够管理的最多页数
+  //test IsPageFree
   for (uint32_t i = 0; i < num_pages; i++) {
     ASSERT_TRUE(bitmap->IsPageFree(i));
   }
@@ -33,13 +35,14 @@ TEST(DiskManagerTest, BitMapPageTest) {
   ASSERT_FALSE(bitmap->AllocatePage(ofs));
 }
 
-TEST(DiskManagerTest, DISABLED_FreePageAllocationTest) {
+TEST(DiskManagerTest, FreePageAllocationTest) {
   std::string db_name = "disk_test.db";
   DiskManager *disk_mgr = new DiskManager(db_name);
   int extent_nums = 2;
   for (uint32_t i = 0; i < DiskManager::BITMAP_SIZE * extent_nums; i++) {
+    
     page_id_t page_id = disk_mgr->AllocatePage();
-    DiskFileMetaPage *meta_page = reinterpret_cast<DiskFileMetaPage *>(disk_mgr->GetMetaData());
+    DiskFileMetaPage *meta_page = reinterpret_cast<DiskFileMetaPage *>(disk_mgr->GetMetaData());  
     EXPECT_EQ(i, page_id);
     EXPECT_EQ(i / DiskManager::BITMAP_SIZE + 1, meta_page->GetExtentNums());
     EXPECT_EQ(i + 1, meta_page->GetAllocatedPages());
@@ -50,6 +53,10 @@ TEST(DiskManagerTest, DISABLED_FreePageAllocationTest) {
   disk_mgr->DeAllocatePage(DiskManager::BITMAP_SIZE);
   disk_mgr->DeAllocatePage(DiskManager::BITMAP_SIZE + 1);
   disk_mgr->DeAllocatePage(DiskManager::BITMAP_SIZE + 2);
+  EXPECT_EQ(true, disk_mgr->IsPageFree(0));
+  EXPECT_EQ(true, disk_mgr->IsPageFree(DiskManager::BITMAP_SIZE + 1));
+  EXPECT_EQ(true, disk_mgr->IsPageFree(DiskManager::BITMAP_SIZE));
+  EXPECT_EQ(false, disk_mgr->IsPageFree(1));
   DiskFileMetaPage *meta_page = reinterpret_cast<DiskFileMetaPage *>(disk_mgr->GetMetaData());
   EXPECT_EQ(extent_nums * DiskManager::BITMAP_SIZE - 5, meta_page->GetAllocatedPages());
   EXPECT_EQ(DiskManager::BITMAP_SIZE - 2, meta_page->GetExtentUsedPage(0));

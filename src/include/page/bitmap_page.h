@@ -29,7 +29,6 @@ public:
    * @return whether a page in the extent is free
    */
   bool IsPageFree(uint32_t page_offset) const;
-
 private:
   /**
    * check a bit(byte_index, bit_index) in bytes is free(value 0).

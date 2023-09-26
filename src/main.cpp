@@ -3,6 +3,8 @@
 #include "glog/logging.h"
 #include "parser/syntax_tree_printer.h"
 #include "utils/tree_file_mgr.h"
+#include <chrono>
+#include <iostream>
 
 extern "C" {
 int yyparse(void);
@@ -61,17 +63,14 @@ int main(int argc, char **argv) {
     if (MinisqlParserGetError()) {
       // error
       printf("%s\n", MinisqlParserGetErrorMessage());
-    } else {
-#ifdef ENABLE_PARSER_DEBUG
-      printf("[INFO] Sql syntax parse ok!\n");
-      SyntaxTreePrinter printer(MinisqlGetParserRootNode());
-      printer.PrintTree(syntax_tree_file_mgr[syntax_tree_id++]);
-#endif
     }
 
     ExecuteContext context;
+    typedef std::chrono::high_resolution_clock Clock;
+    auto t1 = Clock::now();//计时开始
     engine.Execute(MinisqlGetParserRootNode(), &context);
-    sleep(1);
+    auto t2 = Clock::now();//计时结束
+    std::cout << "Execute time: " << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / 1e+6 << "ms" << std::endl;
 
     // clean memory after parse
     MinisqlParserFinish();

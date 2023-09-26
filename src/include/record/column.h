@@ -22,6 +22,10 @@ public:
 
   void SetTableInd(uint32_t ind) { table_ind_ = ind; }
 
+  void SetNullable(bool nullable) { nullable_ = nullable; }
+
+	void SetUnique(bool unique) { unique_ = unique; }
+  
   uint32_t GetTableInd() const { return table_ind_; }
 
   bool IsNullable() const { return nullable_; }
@@ -33,6 +37,8 @@ public:
   uint32_t GetSerializedSize() const;
 
   static uint32_t DeserializeFrom(char *buf, Column *&column, MemHeap *heap);
+	
+  bool IsUnique() const { return unique_; }
 
 private:
   static constexpr uint32_t COLUMN_MAGIC_NUM = 210928;

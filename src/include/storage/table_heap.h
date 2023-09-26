@@ -7,12 +7,17 @@
 #include "transaction/log_manager.h"
 #include "transaction/lock_manager.h"
 
+//不同数据页之间通过双向链表连接
+//RowId记录了该记录所在页，slot_num用于定位记录在该数据页中的下标位置
+
 class TableHeap {
   friend class TableIterator;
 
 public:
   static TableHeap *Create(BufferPoolManager *buffer_pool_manager, Schema *schema, Transaction *txn,
                            LogManager *log_manager, LockManager *lock_manager, MemHeap *heap) {
+
+
     void *buf = heap->Allocate(sizeof(TableHeap));
     return new(buf) TableHeap(buffer_pool_manager, schema, txn, log_manager, lock_manager);
   }
@@ -48,7 +53,7 @@ public:
    * @param[in] txn Transaction performing the update
    * @return true is update is successful.
    */
-  bool UpdateTuple(const Row &row, const RowId &rid, Transaction *txn);
+  bool UpdateTuple(Row &row, const RowId &rid, Transaction *txn);
 
   /**
    * Called on Commit/Abort to actually delete a tuple or rollback an insert.
@@ -102,7 +107,16 @@ private:
           schema_(schema),
           log_manager_(log_manager),
           lock_manager_(lock_manager) {
-    ASSERT(false, "Not implemented yet.");
+    //ASSERT(false, "Not implemented yet.");
+
+ //完成第一页的分配
+    TablePage* first_page = reinterpret_cast<TablePage *>(buffer_pool_manager_->NewPage(first_page_id_));
+ 
+
+    //初始化第一页
+    first_page->Init(first_page_id_,INVALID_PAGE_ID,log_manager, txn);
+    //将第一页标记为脏页
+    buffer_pool_manager_->UnpinPage(first_page_id_, true);
   };
 
   /**
@@ -115,10 +129,10 @@ private:
             schema_(schema),
             log_manager_(log_manager),
             lock_manager_(lock_manager) {}
-
+  
 private:
   BufferPoolManager *buffer_pool_manager_;
-  page_id_t first_page_id_;
+  page_id_t first_page_id_;//记录的首页
   Schema *schema_;
   [[maybe_unused]] LogManager *log_manager_;
   [[maybe_unused]] LockManager *lock_manager_;

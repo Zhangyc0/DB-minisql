@@ -30,7 +30,7 @@ bool TablePage::InsertTuple(Row &row, Schema *schema, Transaction *txn,
   // Otherwise we claim available free space..
   SetFreeSpacePointer(GetFreeSpacePointer() - serialized_size);
   uint32_t __attribute__((unused)) write_bytes = row.SerializeTo(GetData() + GetFreeSpacePointer(), schema);
-  ASSERT(write_bytes = serialized_size, "Unexpected behavior in row serialize.");
+  ASSERT(write_bytes == serialized_size, "Unexpected behavior in row serialize.");
 
   // Set the tuple.
   SetTupleOffsetAtSlot(i, GetFreeSpacePointer());
@@ -148,12 +148,14 @@ bool TablePage::GetTuple(Row *row, Schema *schema, Transaction *txn, LockManager
   uint32_t slot_num = row->GetRowId().GetSlotNum();
   // If somehow we have more slots than tuples, abort the transaction.
   if (slot_num >= GetTupleCount()) {
+    printf("slot_num >= GetTupleCount();Slot_Num=%u,TupleCount=%d\n",slot_num,(int)GetTupleCount());
     return false;
   }
   // Otherwise get the current tuple size too.
   uint32_t tuple_size = GetTupleSize(slot_num);
   // If the tuple is deleted, abort the transaction.
   if (IsDeleted(tuple_size)) {
+    printf("IsDel Mask\n");
     return false;
   }
   // At this point, we have at least a shared lock on the RID. Copy the tuple data into our result.

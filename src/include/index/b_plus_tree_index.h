@@ -18,7 +18,9 @@ public:
   dberr_t ScanKey(const Row &key, std::vector<RowId> &result, Transaction *txn) override;
 
   dberr_t Destroy() override;
-
+  
+  bool IsEmpty() { return container_.IsEmpty(); }
+  
   INDEXITERATOR_TYPE GetBeginIterator();
 
   INDEXITERATOR_TYPE GetBeginIterator(const KeyType &key);

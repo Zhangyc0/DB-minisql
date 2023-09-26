@@ -1,15 +1,20 @@
 #ifndef MINISQL_EXECUTE_ENGINE_H
 #define MINISQL_EXECUTE_ENGINE_H
 
-#include <string>
-#include <unordered_map>
 #include "common/dberr.h"
 #include "common/instance.h"
 #include "transaction/transaction.h"
+#include <iostream>
+#include <string>
+#include <map>
+#include <set>
+#include <unordered_map>
+
 
 extern "C" {
 #include "parser/parser.h"
 };
+
 
 /**
  * ExecuteContext stores all the context necessary to run in the execute engine
@@ -80,8 +85,22 @@ private:
   dberr_t ExecuteQuit(pSyntaxNode ast, ExecuteContext *context);
 
 private:
-  [[maybe_unused]] std::unordered_map<std::string, DBStorageEngine *> dbs_;  /** all opened databases */
-  [[maybe_unused]] std::string current_db_;  /** current database */
+    struct fieldCmp {
+        Field* field;
+        std::string cmp;
+    };
+    std::unordered_map<std::string, DBStorageEngine*> dbs_;  /** all opened databases */
+    std::string current_db_;  /** current database */
+    DBStorageEngine* curDB; //当前的指针
+
+
+
+    std::string dbPath; //db文件放的地方
+    void DBIntialize();
+    void FileCommand(char* input, const int len, std::ifstream& in);
+    bool ClauseAnalysis(std::map<std::string, Field*>& valMap, std::map<std::string, TypeId>& typeMap, pSyntaxNode kNode);
+    bool ClauseAndParser(std::map<std::string, TypeId>& typeMap, std::map<std::string, uint32_t>& lengthMap, pSyntaxNode kNode, std::set<std::string>& colNameSet, std::map<std::string, fieldCmp>& parserIndexRes, std::map<std::string, fieldCmp>& parserEtcRes);
+    bool RecordJudge(Row& row, std::map<std::string, fieldCmp>& parser, std::map<std::string, uint32_t>& idxMap);
 };
 
 #endif //MINISQL_EXECUTE_ENGINE_H
